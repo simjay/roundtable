@@ -1,0 +1,30 @@
+services:
+  backend:
+    image: simjay/roundtable-backend:latest
+    container_name: roundtable-backend
+    restart: unless-stopped
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SECRET_KEY=${SUPABASE_SECRET_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - APP_URL=${APP_URL}
+      - ADMIN_KEY=${ADMIN_KEY}
+    expose:
+      - "8000"
+    networks:
+      - roundtable-net
+
+  nginx:
+    image: simjay/roundtable-nginx:latest
+    container_name: roundtable-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - roundtable-net
+
+networks:
+  roundtable-net:
+    driver: bridge

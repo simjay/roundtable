@@ -1,0 +1,32 @@
+# Local development — builds images from source instead of pulling from DockerHub
+# Usage (from roundtable/ root): make docker-dev
+# Or directly: docker compose -f build/docker-compose.dev.yml up --build
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: roundtable-backend-dev
+    restart: unless-stopped
+    env_file: ../backend/.env
+    expose:
+      - "8000"
+    networks:
+      - roundtable-net
+
+  nginx:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: roundtable-nginx-dev
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - roundtable-net
+
+networks:
+  roundtable-net:
+    driver: bridge
