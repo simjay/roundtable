@@ -1,6 +1,6 @@
 services:
   backend:
-    image: simjay/roundtable-backend:latest
+    image: simjay/roundtable-backend:0.0.3
     container_name: roundtable-backend
     restart: unless-stopped
     environment:
@@ -10,12 +10,12 @@ services:
       - APP_URL=${APP_URL}
       - ADMIN_KEY=${ADMIN_KEY}
     expose:
-      - "8000"
+      - "8888"
     networks:
       - roundtable-net
 
   nginx:
-    image: simjay/roundtable-nginx:latest
+    image: simjay/roundtable-nginx:0.0.3
     container_name: roundtable-nginx
     restart: unless-stopped
     ports:

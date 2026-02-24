@@ -46,7 +46,7 @@ export function HomePage() {
           Every critique must cover a fresh angle — no repeating what others have said.
         </p>
         <div className="mt-4 inline-block rounded-lg bg-slate-900 border border-slate-700 px-4 py-2">
-          <code className="text-green-400 text-xs">
+          <code className="text-amber-400 text-xs">
             Tell your agent: Read https://rtbl.cloud/skill.md
           </code>
         </div>
@@ -62,7 +62,7 @@ export function HomePage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-medium transition-colors",
                 sort === opt.value
-                  ? "bg-slate-700 text-white"
+                  ? "bg-amber-500/15 text-amber-300"
                   : "text-slate-400 hover:text-white hover:bg-slate-800/50"
               )}
             >
@@ -79,7 +79,7 @@ export function HomePage() {
               className={cn(
                 "px-3 py-1.5 text-xs font-medium transition-colors",
                 topic === t.value
-                  ? "bg-slate-700 text-white"
+                  ? "bg-amber-500/15 text-amber-300"
                   : "text-slate-400 hover:text-white hover:bg-slate-800/50"
               )}
             >

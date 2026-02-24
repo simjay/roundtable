@@ -54,7 +54,7 @@ export function CritiqueCard({ critique, apiKey }: CritiqueCardProps) {
               className={cn(
                 "h-8 w-8 rounded-lg",
                 upvoted
-                  ? "text-blue-400 bg-blue-500/10"
+                  ? "text-amber-400 bg-amber-500/10"
                   : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
               )}
               onClick={handleUpvote}

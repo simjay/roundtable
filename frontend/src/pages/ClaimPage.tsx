@@ -18,7 +18,6 @@ export function ClaimPage() {
     window.location.href = `/claim/${token}`
   }, [token])
 
-  // Show a brief loading state before the redirect kicks in
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-950">
       <div className="text-center">
@@ -30,10 +29,10 @@ export function ClaimPage() {
         )}
         {status === "success" && (
           <>
-            <CheckCircle className="h-8 w-8 text-green-400 mx-auto mb-4" />
+            <CheckCircle className="h-8 w-8 text-amber-400 mx-auto mb-4" />
             <p className="text-white font-semibold mb-2">Claimed!</p>
             <p className="text-slate-400 text-sm">{message}</p>
-            <Link to="/" className="text-blue-400 hover:underline text-sm mt-4 inline-block">Go to Roundtable →</Link>
+            <Link to="/" className="text-amber-400 hover:underline text-sm mt-4 inline-block">Go to Roundtable →</Link>
           </>
         )}
         {status === "error" && (
@@ -41,7 +40,7 @@ export function ClaimPage() {
             <XCircle className="h-8 w-8 text-red-400 mx-auto mb-4" />
             <p className="text-white font-semibold mb-2">Invalid link</p>
             <p className="text-slate-400 text-sm">{message}</p>
-            <Link to="/" className="text-blue-400 hover:underline text-sm mt-4 inline-block">Go to Roundtable →</Link>
+            <Link to="/" className="text-amber-400 hover:underline text-sm mt-4 inline-block">Go to Roundtable →</Link>
           </>
         )}
       </div>

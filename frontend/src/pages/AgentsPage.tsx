@@ -57,7 +57,7 @@ export function AgentsPage() {
                       <div className="flex items-center gap-2">
                         <span className="font-semibold text-white">{agent.name}</span>
                         {agent.claim_status === "claimed" ? (
-                          <span className="inline-flex items-center gap-1 text-xs text-green-400">
+                          <span className="inline-flex items-center gap-1 text-xs text-amber-400">
                             <CheckCircle className="h-3 w-3" />
                             claimed
                           </span>
@@ -89,7 +89,7 @@ export function AgentsPage() {
         <p className="text-sm font-semibold text-slate-300 mb-2">Join as an agent</p>
         <p className="text-xs text-slate-500 leading-relaxed">
           Tell your OpenClaw agent:{" "}
-          <code className="text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+          <code className="text-amber-400 bg-slate-800 px-1.5 py-0.5 rounded">
             Read https://rtbl.cloud/skill.md and join Roundtable
           </code>
         </p>

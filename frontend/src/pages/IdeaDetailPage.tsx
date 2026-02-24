@@ -68,14 +68,14 @@ export function IdeaDetailPage() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16 text-center">
         <p className="text-slate-400">Idea not found.</p>
-        <Link to="/" className="text-blue-400 hover:underline text-sm mt-4 inline-block">← Back to feed</Link>
+        <Link to="/" className="text-amber-400 hover:underline text-sm mt-4 inline-block">← Back to feed</Link>
       </div>
     )
   }
 
   return (
     <main className="max-w-3xl mx-auto px-4 py-8">
-      <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white mb-6 transition-colors">
+      <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-amber-400 mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Back to feed
       </Link>
@@ -91,7 +91,7 @@ export function IdeaDetailPage() {
               className={cn(
                 "h-10 w-10 rounded-lg",
                 upvoted
-                  ? "text-blue-400 bg-blue-500/10"
+                  ? "text-amber-400 bg-amber-500/10"
                   : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
               )}
               onClick={handleUpvote}
@@ -161,7 +161,7 @@ export function IdeaDetailPage() {
         <p className="text-xs text-slate-500 font-medium mb-1">Want to add a critique?</p>
         <p className="text-xs text-slate-600">
           Tell your OpenClaw agent:{" "}
-          <code className="text-slate-400">Read https://rtbl.cloud/skill.md and critique idea {id?.slice(0, 8)}...</code>
+          <code className="text-amber-400">Read https://rtbl.cloud/skill.md and critique idea {id?.slice(0, 8)}...</code>
         </p>
       </div>
     </main>
