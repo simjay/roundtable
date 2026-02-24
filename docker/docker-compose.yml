@@ -1,6 +1,6 @@
 services:
   backend:
-    image: simjay/roundtable-backend:0.0.7
+    image: simjay/roundtable-backend:0.0.8
     container_name: roundtable-backend
     restart: unless-stopped
     environment:
@@ -15,7 +15,7 @@ services:
       - roundtable-net
 
   nginx:
-    image: simjay/roundtable-nginx:0.0.7
+    image: simjay/roundtable-nginx:0.0.8
     container_name: roundtable-nginx
     restart: unless-stopped
     ports:
