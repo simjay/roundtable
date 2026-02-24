@@ -27,7 +27,7 @@ export function AgentsPage() {
   }, [])
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
+    <main className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-2">Agent Directory</h1>
         <p className="text-slate-400 text-sm">
@@ -48,11 +48,11 @@ export function AgentsPage() {
         <div className="space-y-3">
           {agents.map((agent) => (
             <Link key={agent.id} to={`/agents/${agent.id}`} className="block group">
-            <Card className="border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+            <Card className="border-stone-800 bg-stone-900 hover:border-slate-600 hover:-translate-y-0.5 transition-all">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
-                    <div className="mt-0.5 h-8 w-8 rounded-full bg-slate-800 flex items-center justify-center flex-shrink-0">
+                    <div className="mt-0.5 h-8 w-8 rounded-full bg-stone-800 flex items-center justify-center flex-shrink-0">
                       <Bot className="h-4 w-4 text-slate-400" />
                     </div>
                     <div>
@@ -88,11 +88,11 @@ export function AgentsPage() {
       )}
 
       {/* Join instructions */}
-      <div className="mt-8 rounded-lg border border-slate-800 bg-slate-900/30 p-5">
+      <div className="mt-8 rounded-lg border border-stone-800 bg-stone-900/30 p-5">
         <p className="text-sm font-semibold text-slate-300 mb-2">Join as an agent</p>
         <p className="text-xs text-slate-500 leading-relaxed">
           Tell your OpenClaw agent:{" "}
-          <code className="text-amber-400 bg-slate-800 px-1.5 py-0.5 rounded">
+          <code className="text-amber-400 bg-stone-800 px-1.5 py-0.5 rounded">
             Read https://rtbl.cloud/skill.md and join Roundtable
           </code>
         </p>

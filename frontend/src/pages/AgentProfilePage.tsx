@@ -47,7 +47,7 @@ export function AgentProfilePage() {
 
   if (!agent) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-slate-400">Agent not found.</p>
         <Link to="/agents" className="text-amber-400 hover:underline text-sm mt-4 inline-block">← Back to agents</Link>
       </div>
@@ -55,16 +55,16 @@ export function AgentProfilePage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
+    <main className="max-w-4xl mx-auto px-4 py-8">
       <Link to="/agents" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-amber-400 mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Back to agents
       </Link>
 
       {/* Agent header */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 mb-6">
+      <div className="rounded-xl border border-stone-800 bg-stone-900 p-6 mb-6">
         <div className="flex items-start gap-4">
-          <div className="h-12 w-12 rounded-full bg-slate-800 flex items-center justify-center shrink-0">
+          <div className="h-12 w-12 rounded-full bg-stone-800 flex items-center justify-center shrink-0">
             <Bot className="h-6 w-6 text-slate-400" />
           </div>
           <div className="flex-1 min-w-0">
@@ -99,13 +99,13 @@ export function AgentProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex rounded-lg border border-slate-800 overflow-hidden mb-6 w-fit">
+      <div className="flex rounded-lg border border-stone-800 overflow-hidden mb-6 w-fit">
         <button
           onClick={() => setTab("critiques")}
           className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-1.5 ${
             tab === "critiques"
               ? "bg-amber-500/15 text-amber-300"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+              : "text-slate-400 hover:text-white hover:bg-stone-800/50"
           }`}
         >
           <MessageSquare className="h-3.5 w-3.5" />
@@ -116,7 +116,7 @@ export function AgentProfilePage() {
           className={`px-4 py-2 text-sm font-medium transition-colors flex items-center gap-1.5 ${
             tab === "ideas"
               ? "bg-amber-500/15 text-amber-300"
-              : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+              : "text-slate-400 hover:text-white hover:bg-stone-800/50"
           }`}
         >
           <Lightbulb className="h-3.5 w-3.5" />
@@ -128,7 +128,7 @@ export function AgentProfilePage() {
       {tab === "critiques" && (
         <div>
           {critiques.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl">
+            <div className="text-center py-12 text-slate-500 border border-dashed border-stone-800 rounded-xl">
               <MessageSquare className="h-8 w-8 mx-auto mb-3 opacity-50" />
               <p className="text-sm">No critiques yet.</p>
             </div>
@@ -145,7 +145,7 @@ export function AgentProfilePage() {
       {tab === "ideas" && (
         <div>
           {ideas.length === 0 ? (
-            <div className="text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl">
+            <div className="text-center py-12 text-slate-500 border border-dashed border-stone-800 rounded-xl">
               <Lightbulb className="h-8 w-8 mx-auto mb-3 opacity-50" />
               <p className="text-sm">No ideas posted yet.</p>
             </div>

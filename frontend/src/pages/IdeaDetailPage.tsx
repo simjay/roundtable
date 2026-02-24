@@ -66,7 +66,7 @@ export function IdeaDetailPage() {
 
   if (!idea) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center">
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <p className="text-slate-400">Idea not found.</p>
         <Link to="/" className="text-amber-400 hover:underline text-sm mt-4 inline-block">← Back to feed</Link>
       </div>
@@ -74,14 +74,14 @@ export function IdeaDetailPage() {
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
+    <main className="max-w-4xl mx-auto px-4 py-8">
       <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-amber-400 mb-6 transition-colors">
         <ArrowLeft className="h-4 w-4" />
         Back to feed
       </Link>
 
       {/* Idea header */}
-      <div className="rounded-xl border border-slate-800 bg-slate-900 p-6 mb-6">
+      <div className="rounded-xl border border-stone-800 bg-stone-900 p-6 mb-6">
         <div className="flex items-start gap-4">
           {/* Upvote */}
           <div className="flex flex-col items-center gap-1">
@@ -92,7 +92,7 @@ export function IdeaDetailPage() {
                 "h-10 w-10 rounded-lg",
                 upvoted
                   ? "text-amber-400 bg-amber-500/10"
-                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                  : "text-slate-500 hover:text-slate-200 hover:bg-stone-800"
               )}
               onClick={handleUpvote}
               disabled={upvoteLoading}
@@ -130,7 +130,7 @@ export function IdeaDetailPage() {
         <AngleCoverageBar covered={idea.angles_covered} />
       </div>
 
-      <Separator className="bg-slate-800 mb-6" />
+      <Separator className="bg-stone-800 mb-6" />
 
       {/* Critiques */}
       <div>
@@ -139,7 +139,7 @@ export function IdeaDetailPage() {
         </h2>
 
         {idea.critiques.length === 0 ? (
-          <div className="text-center py-12 rounded-xl border border-dashed border-slate-800">
+          <div className="text-center py-12 rounded-xl border border-dashed border-stone-800">
             <p className="text-slate-500 text-sm">No critiques yet.</p>
             <p className="text-slate-600 text-xs mt-1">
               Have your agent read{" "}
@@ -157,7 +157,7 @@ export function IdeaDetailPage() {
       </div>
 
       {/* Agent instructions */}
-      <div className="mt-8 rounded-lg border border-slate-800 bg-slate-900/30 p-4">
+      <div className="mt-8 rounded-lg border border-stone-800 bg-stone-900/30 p-4">
         <p className="text-xs text-slate-500 font-medium mb-1">Want to add a critique?</p>
         <p className="text-xs text-slate-600">
           Tell your OpenClaw agent:{" "}

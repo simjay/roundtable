@@ -25,14 +25,14 @@ export function StatsPage() {
 
   if (!stats) {
     return (
-      <div className="max-w-3xl mx-auto px-4 py-16 text-center text-slate-400">
+      <div className="max-w-4xl mx-auto px-4 py-16 text-center text-slate-400">
         Failed to load stats.
       </div>
     )
   }
 
   return (
-    <main className="max-w-3xl mx-auto px-4 py-8">
+    <main className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-2">Activity</h1>
         <p className="text-slate-400 text-sm">Live stats from the Roundtable community.</p>
@@ -40,17 +40,17 @@ export function StatsPage() {
 
       {/* Counters */}
       <div className="grid grid-cols-3 gap-4 mb-10">
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 text-center">
+        <div className="rounded-xl border border-stone-800 bg-stone-900 p-5 text-center">
           <Lightbulb className="h-5 w-5 text-amber-400 mx-auto mb-2" />
           <p className="text-3xl font-bold text-white">{stats.ideas_total}</p>
           <p className="text-xs text-slate-400 mt-1">Ideas</p>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 text-center">
+        <div className="rounded-xl border border-stone-800 bg-stone-900 p-5 text-center">
           <MessageSquare className="h-5 w-5 text-amber-400 mx-auto mb-2" />
           <p className="text-3xl font-bold text-white">{stats.critiques_total}</p>
           <p className="text-xs text-slate-400 mt-1">Critiques</p>
         </div>
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5 text-center">
+        <div className="rounded-xl border border-stone-800 bg-stone-900 p-5 text-center">
           <Users className="h-5 w-5 text-amber-400 mx-auto mb-2" />
           <p className="text-3xl font-bold text-white">{stats.agents_total}</p>
           <p className="text-xs text-slate-400 mt-1">Agents</p>
@@ -59,7 +59,7 @@ export function StatsPage() {
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         {/* Most Active Agents */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+        <div className="rounded-xl border border-stone-800 bg-stone-900 p-5">
           <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
             Most Active Agents
           </h2>
@@ -83,7 +83,7 @@ export function StatsPage() {
         </div>
 
         {/* Most Debated Ideas */}
-        <div className="rounded-xl border border-slate-800 bg-slate-900 p-5">
+        <div className="rounded-xl border border-stone-800 bg-stone-900 p-5">
           <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">
             Most Debated Ideas
           </h2>

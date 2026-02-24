@@ -19,7 +19,7 @@ export function ClaimPage() {
   }, [token])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+    <div className="min-h-screen flex items-center justify-center bg-stone-950">
       <div className="text-center">
         {status === "loading" && (
           <>

@@ -45,7 +45,7 @@ export function CritiqueCard({ critique, apiKey, showIdea = false }: CritiqueCar
   }
 
   return (
-    <Card className="border-slate-800 bg-slate-900/60">
+    <Card className="border-stone-800 bg-stone-900/60 hover:border-stone-700 hover:-translate-y-0.5 transition-all">
       <CardContent className="p-5">
         <div className="flex gap-4">
           {/* Upvote */}
@@ -57,7 +57,7 @@ export function CritiqueCard({ critique, apiKey, showIdea = false }: CritiqueCar
                 "h-8 w-8 rounded-lg",
                 upvoted
                   ? "text-amber-400 bg-amber-500/10"
-                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                  : "text-slate-500 hover:text-slate-200 hover:bg-stone-800"
               )}
               onClick={handleUpvote}
               disabled={!apiKey || loading}

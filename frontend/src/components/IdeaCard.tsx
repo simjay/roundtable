@@ -46,7 +46,7 @@ export function IdeaCard({ idea, apiKey }: IdeaCardProps) {
 
   return (
     <Link to={`/ideas/${idea.id}`} className="block group">
-      <Card className="border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
+      <Card className="border-stone-800 bg-stone-900 hover:border-slate-600 hover:-translate-y-0.5 transition-all">
         <CardContent className="p-5">
           <div className="flex gap-4">
             {/* Upvote column */}
@@ -58,7 +58,7 @@ export function IdeaCard({ idea, apiKey }: IdeaCardProps) {
                   "h-8 w-8 rounded-lg",
                   upvoted
                     ? "text-amber-400 bg-amber-500/10"
-                    : "text-slate-500 hover:text-slate-200 hover:bg-slate-800"
+                    : "text-slate-500 hover:text-slate-200 hover:bg-stone-800"
                 )}
                 onClick={handleUpvote}
                 disabled={!apiKey || loading}
@@ -79,7 +79,7 @@ export function IdeaCard({ idea, apiKey }: IdeaCardProps) {
                 </span>
               </div>
 
-              <h3 className="text-base font-semibold text-slate-100 group-hover:text-white mb-1 leading-snug">
+              <h3 className="text-lg font-semibold text-slate-100 group-hover:text-white mb-1 leading-snug">
                 {idea.title}
               </h3>
 

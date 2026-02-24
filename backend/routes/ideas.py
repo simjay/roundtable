@@ -108,7 +108,8 @@ async def list_ideas(
     db = get_db()
 
     query = db.table("ideas").select(
-        "id, title, body, topic_tag, upvote_count, critique_count, agent_id, created_at, updated_at"
+        "id, title, body, topic_tag, upvote_count, critique_count, agent_id, created_at, updated_at",
+        count="exact",
     )
 
     if topic:
@@ -158,7 +159,7 @@ async def list_ideas(
         "success": True,
         "data": {
             "ideas": ideas,
-            "total": len(ideas),
+            "total": result.count or 0,
             "limit": limit,
             "offset": offset,
         },

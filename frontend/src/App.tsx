@@ -11,7 +11,7 @@ import { ClaimPage } from "@/pages/ClaimPage"
 export default function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-stone-950">
         <Routes>
           {/* Claim page has its own full-screen layout */}
           <Route path="/claim/:token" element={<ClaimPage />} />
