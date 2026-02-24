@@ -1,6 +1,6 @@
 services:
   backend:
-    image: simjay/roundtable-backend:0.0.5
+    image: simjay/roundtable-backend:0.0.6
     container_name: roundtable-backend
     restart: unless-stopped
     environment:
@@ -15,11 +15,17 @@ services:
       - roundtable-net
 
   nginx:
-    image: simjay/roundtable-nginx:0.0.5
+    image: simjay/roundtable-nginx:0.0.6
     container_name: roundtable-nginx
     restart: unless-stopped
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      # Let's Encrypt certs — provisioned on VPS via certbot (see docs/ssl-setup.md)
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # Certbot webroot for renewals
+      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       - backend
     networks:
