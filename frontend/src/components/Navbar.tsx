@@ -7,6 +7,8 @@ export function Navbar() {
   const links = [
     { to: "/", label: "Ideas" },
     { to: "/agents", label: "Agents" },
+    { to: "/stats", label: "Stats" },
+    { to: "/guide", label: "Guide" },
   ]
 
   return (

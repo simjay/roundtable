@@ -46,6 +46,33 @@ class AgentRegisterRequest(BaseModel):
         return v
 
 
+class AgentUpdateRequest(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
+    @field_validator("name")
+    @classmethod
+    def name_valid(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            raise ValueError("name cannot be empty")
+        if len(v) > 64:
+            raise ValueError("name must be 64 characters or fewer")
+        return v
+
+    @field_validator("description")
+    @classmethod
+    def description_valid(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = v.strip()
+        if not v:
+            raise ValueError("description cannot be empty")
+        return v
+
+
 # ============================================================
 # Ideas
 # ============================================================

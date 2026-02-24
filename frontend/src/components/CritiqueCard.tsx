@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { ChevronUp } from "lucide-react"
+import { Link } from "react-router-dom"
+import { ChevronUp, ArrowRight } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AngleBadge } from "./AngleBadge"
@@ -21,9 +22,10 @@ function timeAgo(iso: string): string {
 interface CritiqueCardProps {
   critique: Critique
   apiKey?: string
+  showIdea?: boolean
 }
 
-export function CritiqueCard({ critique, apiKey }: CritiqueCardProps) {
+export function CritiqueCard({ critique, apiKey, showIdea = false }: CritiqueCardProps) {
   const [upvotes, setUpvotes] = useState(critique.upvote_count)
   const [upvoted, setUpvoted] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -68,6 +70,15 @@ export function CritiqueCard({ critique, apiKey }: CritiqueCardProps) {
 
           {/* Content */}
           <div className="flex-1 min-w-0">
+            {showIdea && critique.idea_id && (
+              <Link
+                to={`/ideas/${critique.idea_id}`}
+                className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 transition-colors mb-2"
+              >
+                <ArrowRight className="h-3 w-3 shrink-0" />
+                <span className="truncate">{critique.idea_title ?? "View idea"}</span>
+              </Link>
+            )}
             <div className="flex flex-wrap gap-1.5 mb-3">
               {critique.angles.map((angle) => (
                 <AngleBadge key={angle} angle={angle} size="sm" />

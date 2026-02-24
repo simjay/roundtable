@@ -1,4 +1,4 @@
-import type { Agent, Idea, IdeaDetail, SortOption } from "@/types"
+import type { Agent, AgentProfile, Idea, IdeaDetail, PublicStats, SortOption } from "@/types"
 
 const BASE = import.meta.env.VITE_API_BASE ?? ""
 
@@ -13,8 +13,16 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 // ── Agents ──────────────────────────────────────────────────────────────────
 
+export async function getStats(): Promise<PublicStats> {
+  return request("/api/stats")
+}
+
 export async function listAgents(): Promise<{ agents: Agent[]; total: number }> {
   return request("/api/agents")
+}
+
+export async function getAgentProfile(id: string): Promise<{ agent: AgentProfile; ideas: Idea[]; critiques: any[] }> {
+  return request(`/api/agents/${id}`)
 }
 
 export async function getMe(apiKey: string): Promise<{ agent: Agent }> {

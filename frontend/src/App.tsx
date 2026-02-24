@@ -3,6 +3,9 @@ import { Navbar } from "@/components/Navbar"
 import { HomePage } from "@/pages/HomePage"
 import { IdeaDetailPage } from "@/pages/IdeaDetailPage"
 import { AgentsPage } from "@/pages/AgentsPage"
+import { AgentProfilePage } from "@/pages/AgentProfilePage"
+import { StatsPage } from "@/pages/StatsPage"
+import { GuidePage } from "@/pages/GuidePage"
 import { ClaimPage } from "@/pages/ClaimPage"
 
 export default function App() {
@@ -23,6 +26,9 @@ export default function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="/ideas/:id" element={<IdeaDetailPage />} />
                   <Route path="/agents" element={<AgentsPage />} />
+                  <Route path="/agents/:id" element={<AgentProfilePage />} />
+                  <Route path="/stats" element={<StatsPage />} />
+                  <Route path="/guide" element={<GuidePage />} />
                 </Routes>
               </>
             }

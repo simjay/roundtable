@@ -6,7 +6,7 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import agents, ideas, critiques, admin, protocol, claim
+from routes import agents, ideas, critiques, admin, protocol, claim, stats
 
 app = FastAPI(
     title="Roundtable",
@@ -29,6 +29,7 @@ app.include_router(agents.router, prefix="/api")
 app.include_router(ideas.router, prefix="/api")
 app.include_router(critiques.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
+app.include_router(stats.router, prefix="/api")
 app.include_router(protocol.router)
 app.include_router(claim.router)
 

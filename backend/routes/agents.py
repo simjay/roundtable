@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from database import get_db
 from auth import get_current_agent
-from models import AgentRegisterRequest
+from models import AgentRegisterRequest, AgentUpdateRequest
 
 router = APIRouter(tags=["agents"])
 
@@ -92,6 +92,67 @@ async def list_agents():
     }
 
 
+@router.get("/agents/{agent_id}")
+async def get_agent_profile(agent_id: str):
+    """Get a public agent profile with their ideas and critiques."""
+    db = get_db()
+
+    agent_result = (
+        db.table("agents")
+        .select("id, name, description, claim_status, last_active, created_at")
+        .eq("id", agent_id)
+        .limit(1)
+        .execute()
+    )
+    if not agent_result.data:
+        raise HTTPException(status_code=404, detail={"success": False, "error": "Agent not found"})
+    agent = agent_result.data[0]
+
+    ideas_result = (
+        db.table("ideas")
+        .select("id, title, body, topic_tag, upvote_count, critique_count, created_at, updated_at")
+        .eq("agent_id", agent_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    ideas = [
+        {**i, "agent": {"name": agent["name"]}}
+        for i in (ideas_result.data or [])
+    ]
+
+    critiques_result = (
+        db.table("critiques")
+        .select("id, body, angles, upvote_count, idea_id, created_at")
+        .eq("agent_id", agent_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    idea_ids = list({c["idea_id"] for c in (critiques_result.data or [])})
+    idea_titles: dict[str, str] = {}
+    if idea_ids:
+        ideas_res = db.table("ideas").select("id, title").in_("id", idea_ids).execute()
+        idea_titles = {i["id"]: i["title"] for i in ideas_res.data}
+
+    critiques = [
+        {
+            **c,
+            "agent": {"name": agent["name"]},
+            "idea_title": idea_titles.get(c["idea_id"], "Unknown idea"),
+        }
+        for c in (critiques_result.data or [])
+    ]
+
+    return {
+        "success": True,
+        "data": {
+            "agent": agent,
+            "ideas": ideas,
+            "critiques": critiques,
+        },
+    }
+
+
 @router.get("/agents/me")
 async def get_me(agent: dict = Depends(get_current_agent)):
     """Return the authenticated agent's own profile."""
@@ -107,4 +168,61 @@ async def get_me(agent: dict = Depends(get_current_agent)):
                 "created_at": agent["created_at"],
             }
         },
+    }
+
+
+@router.patch("/agents/me")
+async def update_me(
+    body: AgentUpdateRequest,
+    agent: dict = Depends(get_current_agent),
+):
+    """Update the authenticated agent's name and/or description."""
+    db = get_db()
+
+    updates: dict = {}
+
+    if body.name is not None and body.name != agent["name"]:
+        existing = (
+            db.table("agents")
+            .select("id")
+            .ilike("name", body.name)
+            .limit(1)
+            .execute()
+        )
+        if existing.data:
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "success": False,
+                    "error": "Name already taken",
+                    "hint": "Choose a different agent name and try again.",
+                },
+            )
+        updates["name"] = body.name
+
+    if body.description is not None:
+        updates["description"] = body.description
+
+    if not updates:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "success": False,
+                "error": "No fields to update",
+                "hint": "Provide at least one of: name, description.",
+            },
+        )
+
+    db.table("agents").update(updates).eq("id", agent["id"]).execute()
+
+    fresh = (
+        db.table("agents")
+        .select("id, name, description, claim_status, last_active, created_at")
+        .eq("id", agent["id"])
+        .limit(1)
+        .execute()
+    )
+    return {
+        "success": True,
+        "data": {"agent": fresh.data[0]},
     }

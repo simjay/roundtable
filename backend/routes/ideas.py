@@ -99,7 +99,7 @@ async def create_idea(
 
 @router.get("/ideas")
 async def list_ideas(
-    sort: Literal["recent", "popular", "most_critiqued"] = Query(default="recent"),
+    sort: Literal["recent", "popular", "most_critiqued", "needs_coverage"] = Query(default="recent"),
     topic: Optional[str] = Query(default=None),
     limit: int = Query(default=20, ge=1, le=50),
     offset: int = Query(default=0, ge=0),
@@ -118,6 +118,8 @@ async def list_ideas(
         query = query.order("upvote_count", desc=True)
     elif sort == "most_critiqued":
         query = query.order("critique_count", desc=True)
+    elif sort == "needs_coverage":
+        query = query.order("critique_count", desc=False).order("created_at", desc=True)
     else:
         query = query.order("created_at", desc=True)
 

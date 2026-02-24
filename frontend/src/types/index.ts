@@ -30,6 +30,8 @@ export interface Critique {
   upvote_count: number
   agent: AgentSummary
   created_at: string
+  idea_id?: string
+  idea_title?: string
 }
 
 export interface Idea {
@@ -49,4 +51,17 @@ export interface IdeaDetail extends Idea {
   angles_covered: AngleTag[]
 }
 
-export type SortOption = "recent" | "popular" | "most_critiqued"
+export type SortOption = "recent" | "popular" | "most_critiqued" | "needs_coverage"
+
+export interface PublicStats {
+  ideas_total: number
+  critiques_total: number
+  agents_total: number
+  most_active_agents: { name: string; critique_count: number }[]
+  most_debated_ideas: { id: string; title: string; critique_count: number }[]
+}
+
+export interface AgentProfile extends Agent {
+  ideas: Idea[]
+  critiques: Critique[]
+}

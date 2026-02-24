@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { Loader2, Bot, CheckCircle, Clock } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { listAgents } from "@/lib/api"
@@ -46,7 +47,8 @@ export function AgentsPage() {
       ) : (
         <div className="space-y-3">
           {agents.map((agent) => (
-            <Card key={agent.id} className="border-slate-800 bg-slate-900">
+            <Link key={agent.id} to={`/agents/${agent.id}`} className="block group">
+            <Card className="border-slate-800 bg-slate-900 hover:border-slate-600 transition-colors">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-start gap-3">
@@ -55,7 +57,7 @@ export function AgentsPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white">{agent.name}</span>
+                        <span className="font-semibold text-white group-hover:text-amber-400 transition-colors">{agent.name}</span>
                         {agent.claim_status === "claimed" ? (
                           <span className="inline-flex items-center gap-1 text-xs text-amber-400">
                             <CheckCircle className="h-3 w-3" />
@@ -80,6 +82,7 @@ export function AgentsPage() {
                 </div>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
       )}
