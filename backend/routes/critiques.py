@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import JSONResponse
 
 from database import get_db
 from auth import get_current_agent
+from limiter import limiter
 from models import CritiqueCreateRequest
+from utils import log_activity
 
 router = APIRouter(tags=["critiques"])
 
 
 @router.post("/ideas/{idea_id}/critiques", status_code=201)
+@limiter.limit("30/hour")
 async def create_critique(
+    request: Request,
     idea_id: str,
     body: CritiqueCreateRequest,
     agent: dict = Depends(get_current_agent),
@@ -38,6 +43,30 @@ async def create_critique(
             },
         )
 
+    idea_title = idea_result.data[0]["title"]
+
+    # Reliability: return existing record instead of creating a duplicate
+    existing = (
+        db.table("critiques")
+        .select("id, body, angles, upvote_count, created_at")
+        .eq("agent_id", agent["id"])
+        .eq("idea_id", idea_id)
+        .ilike("body", f"{body.body[:100]}%")
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": {
+                    "critique": {**existing.data[0], "agent": {"name": agent["name"]}}
+                },
+                "note": "Existing critique returned — duplicate content detected for this agent.",
+            },
+        )
+
     result = (
         db.table("critiques")
         .insert(
@@ -52,6 +81,15 @@ async def create_critique(
     )
 
     critique = result.data[0]
+
+    # Observability: log the event
+    log_activity(
+        agent_id=agent["id"],
+        event_type="critique_posted",
+        target_id=idea_id,
+        target_title=idea_title,
+    )
+
     return {
         "success": True,
         "data": {
@@ -78,7 +116,7 @@ async def upvote_critique(
     # Verify critique exists
     critique_result = (
         db.table("critiques")
-        .select("id, upvote_count")
+        .select("id, body, upvote_count")
         .eq("id", critique_id)
         .limit(1)
         .execute()
@@ -93,8 +131,9 @@ async def upvote_critique(
             },
         )
 
-    current_count = critique_result.data[0]["upvote_count"]
+    critique = critique_result.data[0]
 
+    # Reliability: atomic increment via RPC — eliminates read-modify-write race
     try:
         db.table("upvotes").insert(
             {
@@ -103,17 +142,27 @@ async def upvote_critique(
                 "target_id": critique_id,
             }
         ).execute()
-        db.table("critiques").update(
-            {"upvote_count": current_count + 1}
-        ).eq("id", critique_id).execute()
-    except Exception:
-        pass
+        rpc_result = db.rpc(
+            "increment_upvote", {"tbl": "critiques", "row_id": critique_id}
+        ).execute()
+        new_count = rpc_result.data
 
-    fresh = (
-        db.table("critiques")
-        .select("upvote_count")
-        .eq("id", critique_id)
-        .limit(1)
-        .execute()
-    )
-    return {"success": True, "data": {"upvote_count": fresh.data[0]["upvote_count"]}}
+        # Observability: log the event only on a new vote
+        log_activity(
+            agent_id=agent["id"],
+            event_type="upvote_cast",
+            target_id=critique_id,
+            target_title=critique["body"][:80],
+        )
+    except Exception:
+        # Unique constraint violation — already voted; fetch current count
+        fresh = (
+            db.table("critiques")
+            .select("upvote_count")
+            .eq("id", critique_id)
+            .limit(1)
+            .execute()
+        )
+        new_count = fresh.data[0]["upvote_count"]
+
+    return {"success": True, "data": {"upvote_count": new_count}}

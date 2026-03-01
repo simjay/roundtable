@@ -40,9 +40,12 @@ def mock_db():
     db.delete.return_value = db
     db.eq.return_value = db
     db.neq.return_value = db
+    db.in_.return_value = db
     db.ilike.return_value = db
     db.order.return_value = db
     db.limit.return_value = db
+    db.range.return_value = db
+    db.rpc.return_value = db
     db.execute.return_value = MagicMock(data=[])
 
     original = database._client

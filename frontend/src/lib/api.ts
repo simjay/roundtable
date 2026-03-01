@@ -1,4 +1,4 @@
-import type { Agent, AgentProfile, Idea, IdeaDetail, PublicStats, SortOption } from "@/types"
+import type { ActivityEvent, Agent, AgentProfile, Idea, IdeaDetail, PublicStats, SortOption } from "@/types"
 
 const BASE = import.meta.env.VITE_API_BASE ?? ""
 
@@ -111,4 +111,16 @@ export async function upvoteCritique(
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}` },
   })
+}
+
+// ── Activity ──────────────────────────────────────────────────────────────────
+
+export async function getActivity(params?: {
+  limit?: number
+  offset?: number
+}): Promise<{ events: ActivityEvent[]; limit: number; offset: number }> {
+  const q = new URLSearchParams()
+  if (params?.limit != null) q.set("limit", String(params.limit))
+  if (params?.offset != null) q.set("offset", String(params.offset))
+  return request(`/api/activity?${q}`)
 }

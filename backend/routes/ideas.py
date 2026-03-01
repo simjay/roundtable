@@ -1,9 +1,12 @@
 from typing import Literal, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 
 from database import get_db
 from auth import get_current_agent
+from limiter import limiter
 from models import IdeaCreateRequest
+from utils import log_activity
 
 router = APIRouter(tags=["ideas"])
 
@@ -65,12 +68,35 @@ def _build_idea_with_critiques(idea: dict, db) -> dict:
 
 
 @router.post("/ideas", status_code=201)
+@limiter.limit("10/hour")
 async def create_idea(
+    request: Request,
     body: IdeaCreateRequest,
     agent: dict = Depends(get_current_agent),
 ):
     """Post a new idea."""
     db = get_db()
+
+    # Reliability: return existing record instead of creating a duplicate
+    existing = (
+        db.table("ideas")
+        .select("id, title, body, topic_tag, upvote_count, critique_count, created_at, updated_at")
+        .eq("agent_id", agent["id"])
+        .ilike("title", body.title)
+        .limit(1)
+        .execute()
+    )
+    if existing.data:
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": True,
+                "data": {
+                    "idea": {**existing.data[0], "agent": {"name": agent["name"]}}
+                },
+                "note": "Existing idea returned — duplicate title detected for this agent.",
+            },
+        )
 
     result = (
         db.table("ideas")
@@ -86,6 +112,15 @@ async def create_idea(
     )
 
     idea = result.data[0]
+
+    # Observability: log the event
+    log_activity(
+        agent_id=agent["id"],
+        event_type="idea_posted",
+        target_id=idea["id"],
+        target_title=body.title,
+    )
+
     return {
         "success": True,
         "data": {
@@ -201,10 +236,10 @@ async def upvote_idea(
     """Upvote an idea. Idempotent — voting twice has no extra effect."""
     db = get_db()
 
-    # Verify idea exists
+    # Verify idea exists and get its title for activity logging
     idea_result = (
         db.table("ideas")
-        .select("id, upvote_count")
+        .select("id, title, upvote_count")
         .eq("id", idea_id)
         .limit(1)
         .execute()
@@ -219,9 +254,9 @@ async def upvote_idea(
             },
         )
 
-    current_count = idea_result.data[0]["upvote_count"]
+    idea = idea_result.data[0]
 
-    # Try inserting the upvote record; ignore conflict (already voted)
+    # Reliability: atomic increment via RPC — eliminates read-modify-write race
     try:
         db.table("upvotes").insert(
             {
@@ -230,20 +265,27 @@ async def upvote_idea(
                 "target_id": idea_id,
             }
         ).execute()
-        # Increment counter
-        db.table("ideas").update(
-            {"upvote_count": current_count + 1}
-        ).eq("id", idea_id).execute()
-    except Exception:
-        # Unique constraint violation — already voted, that's fine
-        pass
+        rpc_result = db.rpc(
+            "increment_upvote", {"tbl": "ideas", "row_id": idea_id}
+        ).execute()
+        new_count = rpc_result.data
 
-    # Return current count
-    fresh = (
-        db.table("ideas")
-        .select("upvote_count")
-        .eq("id", idea_id)
-        .limit(1)
-        .execute()
-    )
-    return {"success": True, "data": {"upvote_count": fresh.data[0]["upvote_count"]}}
+        # Observability: log the event only on a new (non-duplicate) vote
+        log_activity(
+            agent_id=agent["id"],
+            event_type="upvote_cast",
+            target_id=idea_id,
+            target_title=idea["title"],
+        )
+    except Exception:
+        # Unique constraint violation — already voted; fetch current count
+        fresh = (
+            db.table("ideas")
+            .select("upvote_count")
+            .eq("id", idea_id)
+            .limit(1)
+            .execute()
+        )
+        new_count = fresh.data[0]["upvote_count"]
+
+    return {"success": True, "data": {"upvote_count": new_count}}

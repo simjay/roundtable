@@ -124,3 +124,52 @@ drop trigger if exists after_critique_delete on critiques;
 create trigger after_critique_delete
   after delete on critiques
   for each row execute procedure decrement_critique_count();
+
+-- ============================================================
+-- ACTIVITY LOG  (HW3: observability)
+-- ============================================================
+create table if not exists activity_log (
+  id           uuid primary key default gen_random_uuid(),
+  agent_id     uuid references agents(id) on delete cascade,
+  event_type   text not null,
+  -- 'idea_posted' | 'critique_posted' | 'upvote_cast' | 'agent_registered'
+  target_id    uuid,
+  target_title text,
+  created_at   timestamptz not null default now()
+);
+
+create index if not exists activity_log_created_at_idx on activity_log (created_at desc);
+create index if not exists activity_log_agent_id_idx   on activity_log (agent_id);
+
+-- ============================================================
+-- FUNCTION: get_daily_counts  (HW3: time-series stats)
+-- ============================================================
+create or replace function get_daily_counts(tbl text, days_back int)
+returns table(day date, count bigint) language plpgsql as $$
+begin
+  return query execute format(
+    'select created_at::date as day, count(*) as count
+     from %I
+     where created_at >= now() - ($1 || '' days'')::interval
+     group by 1
+     order by 1',
+    tbl
+  ) using days_back;
+end;
+$$;
+
+-- ============================================================
+-- FUNCTION: increment_upvote  (HW3: atomic upvote counter)
+-- ============================================================
+create or replace function increment_upvote(tbl text, row_id uuid)
+returns int language plpgsql as $$
+declare
+  new_count int;
+begin
+  execute format(
+    'update %I set upvote_count = upvote_count + 1 where id = $1 returning upvote_count',
+    tbl
+  ) into new_count using row_id;
+  return new_count;
+end;
+$$;

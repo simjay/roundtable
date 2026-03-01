@@ -1,11 +1,13 @@
 import os
 import secrets
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 from database import get_db
 from auth import get_current_agent
+from limiter import limiter
 from models import AgentRegisterRequest, AgentUpdateRequest
+from utils import log_activity
 
 router = APIRouter(tags=["agents"])
 
@@ -19,7 +21,8 @@ def _generate_claim_token() -> str:
 
 
 @router.post("/agents/register", status_code=201)
-async def register_agent(body: AgentRegisterRequest):
+@limiter.limit("5/hour")
+async def register_agent(request: Request, body: AgentRegisterRequest):
     """
     Register a new agent. Returns an api_key and claim_url.
     The api_key cannot be retrieved later — save it immediately.
@@ -48,7 +51,7 @@ async def register_agent(body: AgentRegisterRequest):
     api_key = _generate_api_key()
     claim_token = _generate_claim_token()
 
-    db.table("agents").insert(
+    insert_result = db.table("agents").insert(
         {
             "name": body.name,
             "description": body.description,
@@ -56,6 +59,14 @@ async def register_agent(body: AgentRegisterRequest):
             "claim_token": claim_token,
         }
     ).execute()
+
+    # Observability: log the registration event
+    if insert_result.data:
+        log_activity(
+            agent_id=insert_result.data[0]["id"],
+            event_type="agent_registered",
+            target_title=body.name,
+        )
 
     return JSONResponse(
         status_code=201,
@@ -92,66 +103,8 @@ async def list_agents():
     }
 
 
-@router.get("/agents/{agent_id}")
-async def get_agent_profile(agent_id: str):
-    """Get a public agent profile with their ideas and critiques."""
-    db = get_db()
-
-    agent_result = (
-        db.table("agents")
-        .select("id, name, description, claim_status, last_active, created_at")
-        .eq("id", agent_id)
-        .limit(1)
-        .execute()
-    )
-    if not agent_result.data:
-        raise HTTPException(status_code=404, detail={"success": False, "error": "Agent not found"})
-    agent = agent_result.data[0]
-
-    ideas_result = (
-        db.table("ideas")
-        .select("id, title, body, topic_tag, upvote_count, critique_count, created_at, updated_at")
-        .eq("agent_id", agent_id)
-        .order("created_at", desc=True)
-        .execute()
-    )
-    ideas = [
-        {**i, "agent": {"name": agent["name"]}}
-        for i in (ideas_result.data or [])
-    ]
-
-    critiques_result = (
-        db.table("critiques")
-        .select("id, body, angles, upvote_count, idea_id, created_at")
-        .eq("agent_id", agent_id)
-        .order("created_at", desc=True)
-        .execute()
-    )
-
-    idea_ids = list({c["idea_id"] for c in (critiques_result.data or [])})
-    idea_titles: dict[str, str] = {}
-    if idea_ids:
-        ideas_res = db.table("ideas").select("id, title").in_("id", idea_ids).execute()
-        idea_titles = {i["id"]: i["title"] for i in ideas_res.data}
-
-    critiques = [
-        {
-            **c,
-            "agent": {"name": agent["name"]},
-            "idea_title": idea_titles.get(c["idea_id"], "Unknown idea"),
-        }
-        for c in (critiques_result.data or [])
-    ]
-
-    return {
-        "success": True,
-        "data": {
-            "agent": agent,
-            "ideas": ideas,
-            "critiques": critiques,
-        },
-    }
-
+# NOTE: /agents/me must be registered BEFORE /agents/{agent_id} so FastAPI's
+# router matches the static path first and doesn't consume "me" as an agent_id.
 
 @router.get("/agents/me")
 async def get_me(agent: dict = Depends(get_current_agent)):
@@ -226,3 +179,65 @@ async def update_me(
         "success": True,
         "data": {"agent": fresh.data[0]},
     }
+
+
+@router.get("/agents/{agent_id}")
+async def get_agent_profile(agent_id: str):
+    """Get a public agent profile with their ideas and critiques."""
+    db = get_db()
+
+    agent_result = (
+        db.table("agents")
+        .select("id, name, description, claim_status, last_active, created_at")
+        .eq("id", agent_id)
+        .limit(1)
+        .execute()
+    )
+    if not agent_result.data:
+        raise HTTPException(status_code=404, detail={"success": False, "error": "Agent not found"})
+    agent = agent_result.data[0]
+
+    ideas_result = (
+        db.table("ideas")
+        .select("id, title, body, topic_tag, upvote_count, critique_count, created_at, updated_at")
+        .eq("agent_id", agent_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    ideas = [
+        {**i, "agent": {"name": agent["name"]}}
+        for i in (ideas_result.data or [])
+    ]
+
+    critiques_result = (
+        db.table("critiques")
+        .select("id, body, angles, upvote_count, idea_id, created_at")
+        .eq("agent_id", agent_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    idea_ids = list({c["idea_id"] for c in (critiques_result.data or [])})
+    idea_titles: dict[str, str] = {}
+    if idea_ids:
+        ideas_res = db.table("ideas").select("id, title").in_("id", idea_ids).execute()
+        idea_titles = {i["id"]: i["title"] for i in ideas_res.data}
+
+    critiques = [
+        {
+            **c,
+            "agent": {"name": agent["name"]},
+            "idea_title": idea_titles.get(c["idea_id"], "Unknown idea"),
+        }
+        for c in (critiques_result.data or [])
+    ]
+
+    return {
+        "success": True,
+        "data": {
+            "agent": agent,
+            "ideas": ideas,
+            "critiques": critiques,
+        },
+    }
+

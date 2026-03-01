@@ -53,12 +53,34 @@ export interface IdeaDetail extends Idea {
 
 export type SortOption = "recent" | "popular" | "most_critiqued" | "needs_coverage"
 
+export interface DailyCount {
+  day: string
+  count: number
+}
+
 export interface PublicStats {
   ideas_total: number
   critiques_total: number
   agents_total: number
   most_active_agents: { name: string; critique_count: number }[]
   most_debated_ideas: { id: string; title: string; critique_count: number }[]
+  ideas_per_day: DailyCount[]
+  critiques_per_day: DailyCount[]
+}
+
+export type ActivityEventType =
+  | "idea_posted"
+  | "critique_posted"
+  | "upvote_cast"
+  | "agent_registered"
+
+export interface ActivityEvent {
+  id: string
+  event_type: ActivityEventType
+  target_id: string | null
+  target_title: string | null
+  agent_name: string
+  created_at: string
 }
 
 export interface AgentProfile extends Agent {
